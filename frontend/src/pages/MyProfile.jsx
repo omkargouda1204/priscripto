@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
-
+import axios from 'axios'
+import {toast} from "react-toastify"
 const Myprofile = () => {
   const calculateAge = (dob) => {
     const birthDate = new Date(dob);
@@ -53,7 +54,34 @@ const Myprofile = () => {
       age: calculateAge(newDob),
     }));
   };
+  const updateUserProfileData = async () => {
+    try {
+      const formData = new FormData()
+      formData.append('name',userData.name)
+      formData.append('phone',userData.phone)
+      formData.append('address',JSON.stringify(userData.address))
+      formData.append('gender',userData.gender)
+      formData.append('dob',userData.dob)
 
+      image && formData.append('image',image)
+
+      const {data} =await axios.post(backendUrl + '/api/user/update-profile',formData,{headers:{token}})
+    if (data.success) {
+      toast.success(data.message)
+      await loadUserProfileData()
+      setIsEdit(false)
+      setImageKey(false)
+    }else{
+      toast.error(data.message)
+    }
+    
+    } catch (error) {
+     console.log(error) 
+     toast.error(error.message)
+    }
+  
+  }
+  
   return (
     <div className="max-w-lg flex flex-col gap-2 text-sm">
       <div className="relative w-36 h-36">
